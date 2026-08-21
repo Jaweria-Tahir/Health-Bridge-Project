@@ -1,6 +1,7 @@
 # HealthBridge
 
 https://health-bridge-project.vercel.app/
+
 HealthBridge is a platform that helps people find reliable, understandable health
 information and verified community resources — clinics, vaccination centers, and
 support helplines — without ever attempting to diagnose a medical condition. Every
