@@ -1,0 +1,50 @@
+<svg width="680" height="400" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg" role="img" font-family="Helvetica, Arial, sans-serif">
+<title>POST /agent tool-calling workflow</title>
+<desc>The ai-service agent endpoint sends the user message to the Groq LLM with tools enabled. If the LLM requests tool calls, the service executes them against python-service or the knowledge base, appends the results, and retries, up to 3 iterations. Once the LLM responds without tool calls, the final answer and disclaimer are returned.</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="680" height="400" fill="#FFFFFF"/>
+
+<line x1="340" y1="86" x2="340" y2="120" stroke="#5F5E5A" stroke-width="0.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="176" x2="340" y2="210" stroke="#5F5E5A" stroke-width="0.5" marker-end="url(#arrow)"/>
+<line x1="450" y1="238" x2="500" y2="238" stroke="#5F5E5A" stroke-width="0.5" marker-end="url(#arrow)"/>
+<line x1="340" y1="266" x2="340" y2="300" stroke="#5F5E5A" stroke-width="0.5" marker-end="url(#arrow)"/>
+<path d="M 230 328 L 140 328 L 140 148 L 230 148" fill="none" stroke="#5F5E5A" stroke-width="0.5" marker-end="url(#arrow)"/>
+
+<text x="465" y="230" text-anchor="middle" font-size="12" fill="#5F5E5A">No</text>
+<text x="365" y="286" text-anchor="middle" font-size="12" fill="#5F5E5A">Yes</text>
+<text x="140" y="238" text-anchor="middle" font-size="12" fill="#5F5E5A" transform="rotate(-90 140 238)">retry, up to 3x</text>
+
+<g>
+<rect x="250" y="30" width="180" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="52" text-anchor="middle" font-size="14" font-weight="600" fill="#2C2C2A">User message</text>
+<text x="340" y="70" text-anchor="middle" font-size="12" fill="#444441">POST /agent</text>
+</g>
+
+<g>
+<rect x="230" y="120" width="220" height="56" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="340" y="142" text-anchor="middle" font-size="14" font-weight="600" fill="#4A1B0C">Call Groq LLM</text>
+<text x="340" y="160" text-anchor="middle" font-size="12" fill="#712B13">tools=auto, max 3 turns</text>
+</g>
+
+<g>
+<rect x="230" y="210" width="220" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="340" y="242" text-anchor="middle" font-size="14" font-weight="600" fill="#2C2C2A">Tool calls returned?</text>
+</g>
+
+<g>
+<rect x="230" y="300" width="220" height="56" rx="8" fill="#FBEAF0" stroke="#993556" stroke-width="0.5"/>
+<text x="340" y="322" text-anchor="middle" font-size="14" font-weight="600" fill="#4B1528">Execute tool calls</text>
+<text x="340" y="340" text-anchor="middle" font-size="12" fill="#72243E">via python-service</text>
+</g>
+
+<g>
+<rect x="500" y="210" width="160" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="580" y="232" text-anchor="middle" font-size="14" font-weight="600" fill="#04342C">Return response</text>
+<text x="580" y="250" text-anchor="middle" font-size="12" fill="#085041">with disclaimer</text>
+</g>
+</svg>
