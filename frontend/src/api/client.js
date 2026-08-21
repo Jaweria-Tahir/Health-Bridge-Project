@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
-const AI_API_BASE_URL = import.meta.env.VITE_AI_API_BASE_URL || "http://localhost:8010";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://health-bridge-project-2.onrender.com";
+const AI_API_BASE_URL = import.meta.env.VITE_AI_API_BASE_URL || "https://health-bridge-project-1.onrender.com";
 
 export const api = axios.create({ baseURL: API_BASE_URL });
 export const aiApi = axios.create({ baseURL: AI_API_BASE_URL });
