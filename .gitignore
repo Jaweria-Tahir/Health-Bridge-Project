@@ -1,0 +1,9 @@
+backend/node_modules/
+backend/.env
+python-service/venv/
+python-service/__pycache__/
+*.py[cod]
+.DS_Store.env
+**/.env
+*.env
+ai-service/.env
