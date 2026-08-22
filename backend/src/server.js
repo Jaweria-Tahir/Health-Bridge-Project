@@ -60,7 +60,11 @@ mongoose
   .then(async () => {
     console.log(" MongoDB connected successfully");
 
-    await seedDatabase();
+    try {
+      await seedDatabase();
+    } catch (error) {
+      console.error(" Database seed failed; continuing without seed data:", error.message);
+    }
 
     const PORT = parseInt(process.env.PORT, 10) || 5000;
 
