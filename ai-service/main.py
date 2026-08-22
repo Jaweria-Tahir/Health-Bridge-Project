@@ -127,11 +127,19 @@ def _call_python_service(method: str, path: str, **kwargs):
 
 def search_resources(query: str, authorization: str):
     classified = _call_python_service("POST", "/classify", json={"text": query})
-    enriched_query = f"{query} {classified['category']}"
+    category_map = {
+        "Nutrition": "public_health",
+        "Hygiene": "public_health",
+        "Vaccination": "vaccination",
+        "First Aid": "emergency",
+        "Preventive Care": "preventive_care",
+        "Healthy Lifestyle": "mental_wellness",
+    }
+    category = category_map.get(classified.get("category"))
     try:
         response = requests.get(
             f"{BACKEND_URL.rstrip('/')}/api/resources/search",
-            params={"q": enriched_query},
+            params={"q": query, "category": category} if category else {"q": query},
             headers={"Authorization": authorization},
             timeout=10,
         )
