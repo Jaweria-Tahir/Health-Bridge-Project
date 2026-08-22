@@ -4,7 +4,7 @@ from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from groq import Groq, APIError
@@ -62,7 +62,8 @@ def groq_chat(**kwargs):
         raise HTTPException(status_code=502, detail=f"Groq API error: {exc}") from exc
 
 MODEL = os.environ.get("GROQ_MODEL", "llama-3.1-8b-instant")
-PYTHON_SERVICE_URL = os.environ.get("PYTHON_SERVICE_URL", "http://localhost:8002")
+PYTHON_SERVICE_URL = os.environ.get("PYTHON_SERVICE_URL", "https://health-bridge-project.onrender.com/")
+BACKEND_URL = os.environ.get("BACKEND_URL", "https://health-bridge-project-2.onrender.com/")
 
 DISCLAIMER = (
     "This information is general health education only. It is not a medical diagnosis "
@@ -106,27 +107,6 @@ def ask(req: AskRequest):
 
 
 # ---------- Agentic Health Resource Agent (tool use)
-MOCK_RESOURCES = [
-    {
-        "name": "City Vaccination Center",
-        "category": "Vaccination",
-        "location": "Downtown",
-        "description": "Free vaccination and immunization services for all ages",
-    },
-    {
-        "name": "Community Free Clinic",
-        "category": "Preventive Care",
-        "location": "North District",
-        "description": "General checkups, screening, and preventive care",
-    },
-    {
-        "name": "Mental Wellness Helpline",
-        "category": "Healthy Lifestyle",
-        "location": "Nationwide",
-        "description": "24/7 stress, sleep, and mental wellness support line",
-    },
-]
-
 FALLBACK_CATEGORIES = [
     "Nutrition", "Hygiene", "Vaccination", "First Aid", "Preventive Care", "Healthy Lifestyle"
 ]
@@ -145,15 +125,31 @@ def _call_python_service(method: str, path: str, **kwargs):
         ) from exc
 
 
-def search_resources(query: str):
+def search_resources(query: str, authorization: str):
     classified = _call_python_service("POST", "/classify", json={"text": query})
     enriched_query = f"{query} {classified['category']}"
-    data = _call_python_service(
-        "POST",
-        "/search",
-        json={"query": enriched_query, "resources": MOCK_RESOURCES},
-    )
-    return data["results"]
+    try:
+        response = requests.get(
+            f"{BACKEND_URL.rstrip('/')}/api/resources/search",
+            params={"q": enriched_query},
+            headers={"Authorization": authorization},
+            timeout=10,
+        )
+        response.raise_for_status()
+        return response.json().get("resources", [])
+    except requests.HTTPError as exc:
+        status_code = exc.response.status_code if exc.response is not None else 503
+        if status_code in {401, 403}:
+            raise HTTPException(status_code=status_code, detail="Resource search authentication failed") from exc
+        raise HTTPException(
+            status_code=502,
+            detail=f"backend resource search failed with status {status_code}",
+        ) from exc
+    except requests.RequestException as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"backend unavailable at {BACKEND_URL}: {exc}",
+        ) from exc
 
 
 def search_health_articles(query: str):
@@ -232,7 +228,10 @@ class AgentRequest(BaseModel):
 
 
 @app.post("/agent")
-def agent(req: AgentRequest):
+def agent(req: AgentRequest, authorization: str | None = Header(default=None)):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     messages = [
         {
             "role": "system",
@@ -261,7 +260,10 @@ def agent(req: AgentRequest):
         messages.append(message.model_dump(exclude_none=True))
         for tool_call in message.tool_calls:
             function_args = json.loads(tool_call.function.arguments)
-            result = TOOL_FUNCTIONS[tool_call.function.name](function_args)
+            if tool_call.function.name == "search_resources":
+                result = search_resources(function_args["query"], authorization)
+            else:
+                result = TOOL_FUNCTIONS[tool_call.function.name](function_args)
             messages.append({
                 "role": "tool",
                 "tool_call_id": tool_call.id,

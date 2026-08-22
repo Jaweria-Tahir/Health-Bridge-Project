@@ -22,6 +22,7 @@ services:
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
       - PYTHON_SERVICE_URL=http://python-service:8002
+      - BACKEND_URL=http://backend:5000
     depends_on:
       - python-service
     restart: unless-stopped

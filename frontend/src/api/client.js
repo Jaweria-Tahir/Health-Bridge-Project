@@ -6,6 +6,14 @@ const AI_API_BASE_URL = import.meta.env.VITE_AI_API_BASE_URL || "https://health-
 export const api = axios.create({ baseURL: API_BASE_URL });
 export const aiApi = axios.create({ baseURL: AI_API_BASE_URL });
 
+aiApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem("healthbridge_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Attach the JWT to every request against the main API once it exists.
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("healthbridge_token");

@@ -16,6 +16,7 @@ const authRoutes = require("./routes/authRoutes");
 const resourceRoutes = require("./routes/resourceRoutes");
 const educationRoutes = require("./routes/educationRoutes");
 const questionRoutes = require("./routes/questionRoutes");
+const seedDatabase = require("../seed");
 
 const app = express();
 
@@ -56,8 +57,10 @@ mongoose
     socketTimeoutMS: 45000,
     tls: true,
   })
-  .then(() => {
+  .then(async () => {
     console.log(" MongoDB connected successfully");
+
+    await seedDatabase();
 
     const PORT = parseInt(process.env.PORT, 10) || 5000;
 
